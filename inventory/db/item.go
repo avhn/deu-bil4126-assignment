@@ -10,7 +10,7 @@ import (
 
 type Item struct {
 	gorm.Model
-	Name     string  `gorm:"unique;not null;index:item_name_idx`
+	Name     string  `gorm:"unique;not null;index:item_name_idx"`
 	PriceMin float64 `gorm:"not null"`
 	PriceMax float64 `gorm:"not null"`
 }
@@ -74,7 +74,7 @@ func (i *Item) Update() {
 func (i *Item) PullUpdate() {
 	updated := GetItem(i.Name)
 	if updated == nil {
-		log.Panicf("can't update %v, no record exists w/ email", i)
+		log.Panicf("can't update %v, no record exists w/ name", i.Name)
 	}
 	*i = *updated
 }

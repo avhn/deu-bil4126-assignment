@@ -47,6 +47,6 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 		log.Printf("Can't marshall response!")
 		return
 	}
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(http.StatusCreated)
 	w.Write(resp)
 }
