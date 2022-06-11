@@ -9,13 +9,14 @@ import (
 
 type Order struct {
 	gorm.Model
-	Email           string `gorm:"not null;index:orders_email_idx"`
-	GivenInventory  string `gorm:"not null"`
-	GivenItem       string `gorm:"not null;index:orders_given_item_idx"`
-	GivenAmount     int    `gorm:"not null"`
-	WantedInventory string `gorm:"not null"`
-	WantedItem      string `gorm:"not null;index:orders_wanted_item_idx"`
-	WantedAmount    int    `gorm:"not null"`
+	Email           string `gorm:"not null;index:orders_email_idx" json:"email"`
+	Key             string `gorm:"not null;" json:"key"`
+	GivenInventory  string `gorm:"not null" json:"given_inventory"`
+	GivenItem       string `gorm:"not null;index:orders_given_item_idx" json:"given_item"`
+	GivenAmount     int    `gorm:"not null" json:"given_amount"`
+	WantedInventory string `gorm:"not null" json:"wanted_inventory"`
+	WantedItem      string `gorm:"not null;index:orders_wanted_item_idx" json:"wanted_item"`
+	WantedAmount    int    `gorm:"not null" json:"wanted_amount"`
 }
 
 // gorm tablename
@@ -25,8 +26,8 @@ func (r *Order) TableName() string {
 
 // implement Stringer interface
 func (r *Order) String() string {
-	return fmt.Sprintf("Order(%s wants %d %s from %s inventory for %d %s from %s inventory)",
-		r.Email,
+	return fmt.Sprintf("Order(%s[key:%s] wants %d %s from %s inventory for %d %s from %s inventory)",
+		r.Email, r.Key,
 		r.WantedAmount, r.WantedItem, r.WantedInventory,
 		r.GivenAmount, r.GivenItem, r.GivenInventory)
 }
