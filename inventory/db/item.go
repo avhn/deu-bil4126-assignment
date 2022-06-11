@@ -1,0 +1,1 @@
+// gorm inventory item model
