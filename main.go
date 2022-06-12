@@ -4,7 +4,8 @@ import (
 	"ebarter/barter"
 	barterdb "ebarter/barter/db"
 	"ebarter/inventory"
-	"fmt"
+	inventorydb "ebarter/inventory/db"
+
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -12,17 +13,9 @@ import (
 )
 
 func main() {
-	barterdb.InitSQLiteDB()
 	defer barterdb.CloseDB()
-	u := barterdb.NewUser("ulug@gmail.com")
-	u.Create()
-	fmt.Println(u)
-	r := barterdb.NewRequest(u.Email, "food", "hamburger", 10, "electronics", "macbook pro", 1)
-	r.Create()
-	fmt.Println(r)
-
+	defer inventorydb.CloseDB()
 	http.ListenAndServe(":8080", router())
-
 }
 
 func router() http.Handler {
@@ -30,15 +23,21 @@ func router() http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
-	// public
+	// barter
 	r.Group(func(r chi.Router) {
 		r.Post("/signup", barter.Signup)
+		r.Post("/order", barter.Order)
 	})
 
-	r.Group(func(r chi.Router) {
+	// inventory
+	r.Route("/inventory", func(r chi.Router) {
 		r.Post("/add", inventory.Add)
-		r.Post("/add", inventory.ListAll)
-
+		r.Delete("/del", inventory.Del)
+		r.Put("/update", inventory.Update)
+		r.Get("/list", inventory.ListAll)
+		r.Get("/check", inventory.Check)
+		r.Get("/cost", inventory.Cost)
+		r.Get("/calculate", inventory.Calculate)
 	})
 
 	return r

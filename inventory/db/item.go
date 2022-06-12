@@ -34,6 +34,13 @@ func NewItem(name string, min float64, max float64) *Item {
 	}
 }
 
+// return all items
+func GetAllItems() []*Item {
+	var res []*Item
+	db.Raw("SELECT * FROM items").Scan(&res)
+	return res
+}
+
 // create item
 func (i *Item) Create() bool {
 	if !db.NewRecord(*i) {

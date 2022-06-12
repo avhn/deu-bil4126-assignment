@@ -16,6 +16,12 @@ type CalculateRequest struct {
 	Budget       float64 `json:"budget"`
 }
 
+type RawItem struct {
+	Name     string  `json:"name"`
+	PriceMin float64 `json:"price_min"`
+	PriceMax float64 `json:"price_max"`
+}
+
 // inventory methods and inventory reuseable interface
 // add new item
 func Add(w http.ResponseWriter, r *http.Request) {
@@ -83,6 +89,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 	if check == nil || check.PriceMax != i.PriceMax || check.PriceMin != check.PriceMin {
 		// not updated
 		w.WriteHeader(http.StatusExpectationFailed)
+		return
 	}
 	// passed
 	w.WriteHeader(http.StatusOK)
@@ -114,6 +121,7 @@ func Del(w http.ResponseWriter, r *http.Request) {
 	if db.GetItem(db_i.Name) != nil {
 		// not deleted
 		w.WriteHeader(http.StatusExpectationFailed)
+		return
 	}
 	// passed
 	w.WriteHeader(http.StatusOK)
@@ -121,8 +129,20 @@ func Del(w http.ResponseWriter, r *http.Request) {
 
 // list all items in the inventory
 func ListAll(w http.ResponseWriter, r *http.Request) {
-	res := db.Find(&db.Item)
-	fmt.Println(res)
+	items := db.GetAllItems()
+	res := make([]RawItem, len(items))
+	for i := 0; i < len(items); i++ {
+		res[i].Name, res[i].PriceMin, res[i].PriceMax = items[i].Name, items[i].PriceMin, items[i].PriceMax
+	}
+	resp, err := json.Marshal(res)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Can't marshall response!")
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	// make resp = {"list": resp}
+	w.Write(append(append([]byte(`{"list": `), resp...), []byte(`}`)...))
 }
 
 // check inventory for item
