@@ -1,10 +1,12 @@
 package main
 
 import (
+	"ebarter/art"
 	"ebarter/barter"
 	barterdb "ebarter/barter/db"
-	"ebarter/inventory"
-	inventorydb "ebarter/inventory/db"
+	"ebarter/construction"
+	"ebarter/electronics"
+	"ebarter/food"
 
 	"net/http"
 
@@ -14,7 +16,6 @@ import (
 
 func main() {
 	defer barterdb.CloseDB()
-	defer inventorydb.CloseDB()
 	http.ListenAndServe(":8080", router())
 }
 
@@ -29,15 +30,47 @@ func router() http.Handler {
 		r.Post("/order", barter.Order)
 	})
 
-	// inventory
-	r.Route("/inventory", func(r chi.Router) {
-		r.Post("/add", inventory.Add)
-		r.Delete("/del", inventory.Del)
-		r.Put("/update", inventory.Update)
-		r.Get("/list", inventory.ListAll)
-		r.Get("/check", inventory.Check)
-		r.Get("/cost", inventory.Cost)
-		r.Get("/calculate", inventory.Calculate)
+	// art inventory
+	r.Route("/art", func(r chi.Router) {
+		r.Post("/add", art.Add)
+		r.Delete("/del", art.Del)
+		r.Put("/update", art.Update)
+		r.Get("/list", art.ListAll)
+		r.Get("/check", art.Check)
+		r.Get("/cost", art.Cost)
+		r.Get("/calculate", art.Calculate)
+	})
+	// construction inventory
+	r.Route("/construction", func(r chi.Router) {
+		r.Post("/add", construction.Add)
+		r.Delete("/del", construction.Del)
+		r.Put("/update", construction.Update)
+		r.Get("/list", construction.ListAll)
+		r.Get("/check", construction.Check)
+		r.Get("/cost", construction.Cost)
+		r.Get("/calculate", construction.Calculate)
+	})
+
+	// electronics inventory
+	r.Route("/electronics", func(r chi.Router) {
+		r.Post("/add", electronics.Add)
+		r.Delete("/del", electronics.Del)
+		r.Put("/update", electronics.Update)
+		r.Get("/list", electronics.ListAll)
+		r.Get("/check", electronics.Check)
+		r.Get("/cost", electronics.Cost)
+		r.Get("/calculate", electronics.Calculate)
+	})
+
+	// food inventory
+	r.Route("/food", func(r chi.Router) {
+		r.Post("/add", food.Add)
+		r.Delete("/del", food.Del)
+		r.Put("/update", food.Update)
+		r.Get("/list", food.ListAll)
+		r.Get("/check", food.Check)
+		r.Get("/cost", food.Cost)
+		r.Get("/calculate", food.Calculate)
 	})
 
 	return r

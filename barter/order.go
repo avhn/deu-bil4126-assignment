@@ -31,7 +31,7 @@ type CalculationResponse struct {
 
 var (
 	// inventories defined by name
-	inventories                = []string{"inventory", "food", "electronics", "construction", "art"}
+	inventories                = []string{"food", "electronics", "construction", "art"}
 	invalidOrderFormatResponse = []byte(`{"message": "Invalid order."}`)
 	inventoryServicesPrefix    = "http://localhost:8080"
 )
