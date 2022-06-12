@@ -1,7 +1,7 @@
 package electronics
 
 import (
-	"ebarter/inventory/db"
+	"ebarter/electronics/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

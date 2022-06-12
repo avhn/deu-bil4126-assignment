@@ -2,11 +2,15 @@ package main
 
 import (
 	"ebarter/art"
+	adb "ebarter/art/db"
 	"ebarter/barter"
 	barterdb "ebarter/barter/db"
 	"ebarter/construction"
+	cidb "ebarter/construction/db"
 	"ebarter/electronics"
+	edb "ebarter/electronics/db"
 	"ebarter/food"
+	fdb "ebarter/food/db"
 
 	"net/http"
 
@@ -14,11 +18,20 @@ import (
 	"github.com/go-chi/chi/middleware"
 )
 
+func deferall() {
+	barterdb.CloseDB()
+	cidb.CloseDB()
+	edb.CloseDB()
+	adb.CloseDB()
+	fdb.CloseDB()
+}
+
 func main() {
-	defer barterdb.CloseDB()
+	defer deferall()
 	http.ListenAndServe(":8080", router())
 }
 
+// routes
 func router() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)

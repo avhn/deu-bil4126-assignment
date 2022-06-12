@@ -1,7 +1,7 @@
 package construction
 
 import (
-	"ebarter/inventory/db"
+	"ebarter/construction/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

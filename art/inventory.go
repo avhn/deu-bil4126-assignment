@@ -1,7 +1,7 @@
 package art
 
 import (
-	"ebarter/inventory/db"
+	"ebarter/art/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

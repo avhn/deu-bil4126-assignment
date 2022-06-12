@@ -1,7 +1,7 @@
 package food
 
 import (
-	"ebarter/inventory/db"
+	"ebarter/food/db"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"

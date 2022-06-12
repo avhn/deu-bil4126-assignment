@@ -13,7 +13,6 @@ import (
 var db *gorm.DB
 
 var (
-	// TODO: sqliteFilename reuseable
 	// sqlite
 	sqliteFilename = "food_inventory.db"
 )
