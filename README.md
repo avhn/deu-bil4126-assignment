@@ -32,12 +32,12 @@ receives:
 {
     "email": the email you signed up with,
     "key": your account key,
-    "given_item_inventory": inventory name,
+    "given_inventory": inventory name,
     "given_item": name of given item,
-    "given_item_amount": amount,
-    "wanted_item_inventory": name of inventory,
+    "given_amount": amount,
+    "wanted_inventory": name of inventory,
     "wanted_item": name of wanted item,
-    "wanted_item_amount": amount,
+    "wanted_amount": amount,
 }
 ```
 returns: 
@@ -153,12 +153,12 @@ NotFound 404, not exists.
 
 ### GET /cost
 ---
-Calculate cost of wanted items. (wanted_item_price * wanted_amount)
+Calculate cost of items. (item_price_max * amount)
 receives:
 ```json
 {
-    "wanted_item": string,
-    "wanted_amount": integer
+    "item": string,
+    "amount": integer
 }
 ```
 returns:
@@ -174,12 +174,12 @@ BadRequest 400, no such item.
 
 ### GET /calculate
 ---
-Calculate how many wanted items can be acquired with the budget. (budget / wanted_item_price)
+Calculate how many wanted items can be acquired with the budget. (budget / item_price)
 receives:
 ```json
 {
     "budget": float,
-    "wanted_item": string
+    "item": string
 }
 ```
 
@@ -187,7 +187,7 @@ returns:
 OK 200
 ```json
 {
-    "result": float
+    "amount": int
 }
 ```
 or

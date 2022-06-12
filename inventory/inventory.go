@@ -242,5 +242,5 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
 	// calculate
 	res := int(math.Floor(cr.Budget / db_i.PriceMin))
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintf(`{"result": %d,}`, res)))
+	w.Write([]byte(fmt.Sprintf(`{"amount": %d,}`, res)))
 }

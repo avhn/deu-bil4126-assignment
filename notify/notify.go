@@ -7,19 +7,19 @@ import (
 )
 
 type Notification struct {
-	u1             *barterdb.User
-	u2             *barterdb.User
-	got_inventory  string
-	got_item       string
-	got_amount     int
-	gave_inventory string
-	gave_item      string
-	gave_amount    int
+	U1            *barterdb.User
+	U2            *barterdb.User
+	GotInventory  string
+	GotItem       string
+	GotAmount     int
+	GaveInventory string
+	GaveItem      string
+	GaveAmount    int
 }
 
 // email and notify
 func Notify(n Notification) {
 	// mock notification
 	log.Printf("%v gave %d amount %s from %s to %v and got %d amount %s from %s in return.",
-		n.u1, n.got_amount, n.got_item, n.got_inventory, n.u2, n.gave_amount, n.gave_item, n.gave_inventory)
+		n.U1, n.GotAmount, n.GotItem, n.GotInventory, n.U2, n.GaveAmount, n.GaveItem, n.GaveInventory)
 }
