@@ -12,9 +12,9 @@ import (
 )
 
 type OrderResponse struct {
-	acquired_wanted_item_amount int `json:"acquired_wanted_item_amount"`
-	surplus_given_item_amount   int `json:"surplus_given_item_amount"`
-	inorder_given_item_amount   int `json:"inorder_given_item_amount"`
+	AcquiredWantedItemAmount int `json:"acquired_wanted_item_amount"`
+	SurplusGivenItemAmount   int `json:"surplus_given_item_amount"`
+	InorderGivenItemAmount   int `json:"inorder_given_item_amount"`
 }
 
 type ReceivedItem struct {
@@ -135,7 +135,7 @@ func Order(w http.ResponseWriter, r *http.Request) {
 	}
 	// create but don't write newOrder
 	var Response OrderResponse // returned
-	Response.inorder_given_item_amount = o.GivenAmount
+	Response.InorderGivenItemAmount = o.GivenAmount
 	newOrder := db.NewOrder(user.Email, user.Key,
 		o.GivenInventory, givenItem.Name, o.GivenAmount,
 		o.WantedInventory, wantedItem.Name, o.WantedAmount)
@@ -148,7 +148,6 @@ func Order(w http.ResponseWriter, r *http.Request) {
 			log.Println("Can't create order.")
 			return
 		}
-
 	} else { // match orders
 		for _, offer := range orders {
 			interval_g1, interval_g2 := givenItem.PriceMin*float64(newOrder.GivenAmount), givenItem.PriceMax*float64(newOrder.GivenAmount)
@@ -157,17 +156,17 @@ func Order(w http.ResponseWriter, r *http.Request) {
 			if (interval_w1 <= interval_g1 && interval_g1 <= interval_w2) ||
 				(interval_g1 <= interval_w1 && interval_w1 <= interval_g2) {
 				// barter
-				Response.acquired_wanted_item_amount = offer.GivenAmount
-				Response.inorder_given_item_amount = 0
-				Response.surplus_given_item_amount = Max(0, o.GivenAmount-offer.WantedAmount)
-				u2 := db.GetUser(offer.Email)
+				Response.AcquiredWantedItemAmount = offer.GivenAmount
+				Response.InorderGivenItemAmount = 0
+				Response.SurplusGivenItemAmount = Max(0, o.GivenAmount-offer.WantedAmount)
+				u2 := db.GetUser(offer.Key)
+				log.Println(offer)
 				if u2 == nil {
 					w.WriteHeader(http.StatusInternalServerError)
 					log.Println("Can't find user of the order.")
 					return
 				}
-				var n notify.Notification
-				n = notify.Notification{
+				var n notify.Notification = notify.Notification{
 					user,
 					u2,
 					newOrder.WantedInventory,
@@ -175,14 +174,14 @@ func Order(w http.ResponseWriter, r *http.Request) {
 					offer.GivenAmount,
 					newOrder.GivenInventory,
 					newOrder.GivenItem,
-					newOrder.GivenAmount - Response.surplus_given_item_amount}
+					newOrder.GivenAmount - Response.SurplusGivenItemAmount}
 				go notify.Notify(n)
 				// offer closed
 				go offer.PermDel()
 				break
 			}
 		}
-		if 0 == Response.acquired_wanted_item_amount {
+		if Response.AcquiredWantedItemAmount == 0 {
 			// barter didn't happen
 			if !newOrder.Create() {
 				w.WriteHeader(http.StatusInternalServerError)
@@ -191,7 +190,6 @@ func Order(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
 	// return OrderResponse
 	resp, err := json.Marshal(Response)
 	if err != nil {
