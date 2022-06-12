@@ -1,6 +1,7 @@
 package barter
 
 import (
+	"bytes"
 	"ebarter/barter/db"
 	"ebarter/notify"
 	"encoding/json"
@@ -96,9 +97,14 @@ func Order(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// ask inventories
-	log.Println(strings.Join([]string{inventoryServicesPrefix, o.GivenInventory, "check", "?name=" + o.GivenItem}, "/"))
-	respGiven, err := http.Get(strings.Join([]string{inventoryServicesPrefix, o.GivenInventory, "check", "?name=" + o.GivenItem}, "/"))
-	respWanted, err2 := http.Get(strings.Join([]string{inventoryServicesPrefix, o.WantedInventory, "check", "?name=" + o.WantedItem}, "/"))
+	client := &http.Client{}
+	jsonBodyWanted := []byte(`{"name": "` + o.WantedItem + `"}`)
+	jsonBodyGiven := []byte(`{"name": "` + o.GivenItem + `"}`)
+	url := strings.Join([]string{inventoryServicesPrefix, o.GivenInventory, "check"}, "/")
+	reqWanted, err := http.NewRequest("GET", url, bytes.NewBuffer(jsonBodyWanted))
+	reqGiven, err2 := http.NewRequest("GET", url, bytes.NewBuffer(jsonBodyGiven))
+	respGiven, err := client.Do(reqGiven)
+	respWanted, err2 := client.Do(reqWanted)
 	if err != nil || err2 != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error while requesting from inventory: %v | %v", err, err2)
@@ -109,9 +115,10 @@ func Order(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Printf("error while reading response body: %v | %v", err, err2)
 	}
+	respGiven.Body.Close()
+	respWanted.Body.Close()
 	var givenItem ReceivedItem
 	var wantedItem ReceivedItem
-	log.Println(string(bodyGiven[:]))
 	err = json.Unmarshal(bodyGiven, &givenItem)
 	err2 = json.Unmarshal(bodyWanted, &wantedItem)
 	if err != nil || err2 != nil {
