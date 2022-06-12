@@ -1,4 +1,7 @@
-Use json. Endpoints returns BadRequest 400 for invalid requests. bodies.
+## API DOCUMENTATION
+
+Use json. Endpoints return BadRequest 400 for invalid request
+ bodies.
 
 ### POST /signup
 ---
@@ -42,9 +45,9 @@ Created 201
 ```json
 {
     "acquired_wanted_item_amount": amount you have received,
-    // if order is completed,=
+    // if order is completed surplus returned
     "surplus_given_item_amount": amount you returned to you, 
-    // else order isn't completed
+    // else order isn't completed fully surplus is inorder
     "inorder_given_item_amount": amount still in order to execute,
 }
 ```
@@ -64,7 +67,7 @@ receives:
 {
     "name": item name,
     "price_min": float,
-    "price_max": float,
+    "price_max": float
 }
 ```
 returns:
@@ -81,7 +84,7 @@ Delete existing item.
 receives:
 ```json
 {
-    "name": item name,
+    "name": item name
 }
 ```
 returns:
@@ -99,7 +102,7 @@ receives:
 {
     "name": item name,
     "price_min": float,
-    "price_max": float,
+    "price_max": float
 }
 ```
 returns:
@@ -129,15 +132,22 @@ InternalServerError 500, server error.
 
 ### GET /check
 ---
-Check inventory for the item
+Check inventory for the item.
 receives:
 ```json
 {
-    "item_name": string,
+    "item_name": string
 }
 ```
 returns:
 Conflict 409, exists
+```json
+{
+    "item_name": string,    
+    "price_max": float,
+    "price_min": float
+}
+```
 or
 NotFound 404, not exists.
 
@@ -148,14 +158,14 @@ receives:
 ```json
 {
     "wanted_item": string,
-    "wanted_amount": integer,
+    "wanted_amount": integer
 }
 ```
 returns:
 OK 200
 ```json
 {
-    "cost": float,
+    "cost": float
 }
 ```
 or
@@ -169,7 +179,7 @@ receives:
 ```json
 {
     "budget": float,
-    "wanted_item": string,
+    "wanted_item": string
 }
 ```
 
@@ -177,7 +187,7 @@ returns:
 OK 200
 ```json
 {
-    "result": float,
+    "result": float
 }
 ```
 or

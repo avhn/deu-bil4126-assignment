@@ -33,10 +33,11 @@ func (r *Order) String() string {
 }
 
 // get a user with the args
-func NewRequest(email string, given_inventory string, given_item string, given_amount int,
+func NewOrder(email string, key string, given_inventory string, given_item string, given_amount int,
 	wanted_inventory string, wanted_item string, wanted_amount int) *Order {
 	return &Order{
 		Email:           email,
+		Key:             key,
 		GivenInventory:  given_inventory,
 		GivenItem:       given_item,
 		GivenAmount:     given_amount,
@@ -61,9 +62,20 @@ func (r *Order) Create() bool {
 
 }
 
-func GetRequests(u *User) []Order {
+func GetOrders(u *User) []Order {
 	var orders []Order
 	db.Take(&orders, "key = ?", u.Key)
+	if 0 < len(orders) {
+		return orders
+	}
+	return nil
+}
+
+func FindOrders(wanted_inventory string, wanted_name string,
+	given_inventory string, given_name string) []Order {
+	var orders []Order
+	db.Take(&orders, "given_inventory LIKE ? AND given_item LIKE ? AND wanted_inventory LIKE ? AND wanted_item LIKE ?",
+		given_inventory, given_name, wanted_inventory, wanted_name)
 	if 0 < len(orders) {
 		return orders
 	}

@@ -11,9 +11,9 @@ import (
 )
 
 type CalculateRequest struct {
-	WantedItem   string  `json:"wanted_item"`
-	WantedAmount int     `json:"wanted_amount"`
-	Budget       float64 `json:"budget"`
+	ItemName string  `json:"item"`
+	Amount   int     `json:"amount"`
+	Budget   float64 `json:"budget"`
 }
 
 type RawItem struct {
@@ -167,6 +167,14 @@ func Check(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// found
+	ri := RawItem{db_i.Name, db_i.PriceMin, db_i.PriceMax}
+	resp, err := json.Marshal(ri)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("Can't marshall response!")
+		return
+	}
+	w.Write(resp)
 	w.WriteHeader(http.StatusConflict)
 }
 
@@ -186,19 +194,19 @@ func Cost(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error while unmarshaling item: %v", err)
 		return
 	}
-	db_i := db.GetItem(cr.WantedItem)
+	db_i := db.GetItem(cr.ItemName)
 	if db_i == nil {
 		w.WriteHeader(http.StatusNotFound)
 		log.Println("Item doesn't exists.")
 		return
 	}
-	if cr.WantedAmount <= 0 {
+	if cr.Amount <= 0 {
 		w.WriteHeader(http.StatusBadRequest)
 		log.Printf("Invalid amount argument, or doesn't exists.")
 		return
 	}
 	// calculate cost
-	res := db_i.PriceMin * float64(cr.WantedAmount)
+	res := db_i.PriceMin * float64(cr.Amount)
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf(`{"cost": %f,}`, res)))
 }
@@ -220,7 +228,7 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
 		log.Printf("error while unmarshaling item: %v", err)
 		return
 	}
-	db_i := db.GetItem(cr.WantedItem)
+	db_i := db.GetItem(cr.ItemName)
 	if db_i == nil {
 		w.WriteHeader(http.StatusNotFound)
 		log.Println("Item doesn't exists.")
@@ -232,7 +240,7 @@ func Calculate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// calculate
-	res := int(math.Floor(cr.Budget * float64(cr.WantedAmount)))
+	res := int(math.Floor(cr.Budget / db_i.PriceMin))
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf(`{"result": %d,}`, res)))
 }
