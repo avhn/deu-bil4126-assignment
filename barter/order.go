@@ -100,9 +100,14 @@ func Order(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{}
 	jsonBodyWanted := []byte(`{"name": "` + o.WantedItem + `"}`)
 	jsonBodyGiven := []byte(`{"name": "` + o.GivenItem + `"}`)
-	url := strings.Join([]string{inventoryServicesPrefix, o.GivenInventory, "check"}, "/")
-	reqWanted, err := http.NewRequest("GET", url, bytes.NewBuffer(jsonBodyWanted))
-	reqGiven, err2 := http.NewRequest("GET", url, bytes.NewBuffer(jsonBodyGiven))
+	urlGiven := strings.Join([]string{inventoryServicesPrefix, o.GivenInventory, "check"}, "/")
+	urlWanted := strings.Join([]string{inventoryServicesPrefix, o.WantedInventory, "check"}, "/")
+	reqGiven, err := http.NewRequest("GET", urlGiven, bytes.NewBuffer(jsonBodyGiven))
+	reqWanted, err2 := http.NewRequest("GET", urlWanted, bytes.NewBuffer(jsonBodyWanted))
+	if err != nil || err2 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Printf("error while creating requests: %v | %v", err, err2)
+	}
 	respGiven, err := client.Do(reqGiven)
 	respWanted, err2 := client.Do(reqWanted)
 	if err != nil || err2 != nil {
