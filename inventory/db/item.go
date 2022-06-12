@@ -10,9 +10,9 @@ import (
 
 type Item struct {
 	gorm.Model
-	Name     string  `gorm:"unique;not null;index:item_name_idx"`
-	PriceMin float64 `gorm:"not null"`
-	PriceMax float64 `gorm:"not null"`
+	Name     string  `gorm:"unique;not null;index:item_name_idx" json:"name"`
+	PriceMin float64 `gorm:"not null" json:"price_min"`
+	PriceMax float64 `gorm:"not null" json:"price_max"`
 }
 
 // gorm tablename

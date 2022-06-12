@@ -35,7 +35,7 @@ func Signup(w http.ResponseWriter, r *http.Request) {
 	}
 	u := db.NewUser(c.Email)
 	if !u.Create() {
-		w.WriteHeader(http.StatusNotAcceptable)
+		w.WriteHeader(http.StatusConflict)
 		w.Write(userAlreadyExistsResponse)
 		log.Printf("User already exists.")
 		return

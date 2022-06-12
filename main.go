@@ -3,6 +3,7 @@ package main
 import (
 	"ebarter/barter"
 	barterdb "ebarter/barter/db"
+	"ebarter/inventory"
 	"fmt"
 	"net/http"
 
@@ -32,6 +33,12 @@ func router() http.Handler {
 	// public
 	r.Group(func(r chi.Router) {
 		r.Post("/signup", barter.Signup)
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Post("/add", inventory.Add)
+		r.Post("/add", inventory.ListAll)
+
 	})
 
 	return r

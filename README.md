@@ -1,5 +1,7 @@
+Use json. Endpoints returns BadRequest 400 for invalid requests. bodies.
 
 ### POST /signup
+---
 receives:
 
 ```json
@@ -19,6 +21,7 @@ or
 Conflict 409, email already exists.
 
 ### POST /order
+---
 Orders are partially fulfillable by design. Individual txs are indicated by the terminal or sent to your email.
 
 receives:
@@ -39,17 +42,22 @@ Created 201
 ```json
 {
     "acquired_wanted_item_amount": amount you have received,
-    "surplus_given_item_amount": amount you returned to you, // if order is completed,
-    "inorder_given_item_amount": amount still in order to execute, // else order isn't completed
+    // if order is completed,=
+    "surplus_given_item_amount": amount you returned to you, 
+    // else order isn't completed
+    "inorder_given_item_amount": amount still in order to execute,
 }
 ```
 or
+NotAcceptable 406, maximum given item cost < minimum wanted item cost
+or
 BadRequest 400, invalid (email, key) pair.
 
-## Inventory endpoints
+# Inventory endpoints
 prefixed by /$inventory_name
 
 ### POST /add
+---
 Add an item.
 receives:
 ```json
@@ -63,9 +71,12 @@ returns:
 Created 201
 or 
 Conflict 409
+or
+BadRequest 400, didn't satisfy logical checks
 
 
 ### DELETE /del
+---
 Delete existing item.
 receives:
 ```json
@@ -76,9 +87,12 @@ receives:
 returns:
 NoContent 204, succesfully deleted
 or
-BadRequest 400, no such item.
+BadRequest 400, no such item
+or
+ExpectationFailed 417, wasn't deleted, server error.
 
 ### PUT /update
+---
 Update price of existing item.
 receives:
 ```json
@@ -91,10 +105,13 @@ receives:
 returns:
 OK 200
 or
-BadRequest 400, no such item.
+BadRequest 400, no such item
+or
+ExpectationFailed 417, wasn't updated, server error.
 
 
 ### GET /list
+---
 List all items in the inventory.
 receives empty request body.
 returns:
@@ -110,7 +127,22 @@ OK 200
 or
 InternalServerError 500, server error.
 
+### GET /check
+---
+Check inventory for the item
+receives:
+```json
+{
+    "item_name": string,
+}
+```
+returns:
+Conflict 409, exists
+or
+NotFound 404, not exists.
+
 ### GET /cost
+---
 Calculate cost of wanted items. (wanted_item_price * wanted_amount)
 receives:
 ```json
@@ -131,6 +163,7 @@ BadRequest 400, no such item.
 
 
 ### GET /calculate
+---
 Calculate how many wanted items can be acquired with the budget. (budget / wanted_item_price)
 receives:
 ```json
@@ -144,7 +177,7 @@ returns:
 OK 200
 ```json
 {
-    "result": integer,
+    "result": float,
 }
 ```
 or
