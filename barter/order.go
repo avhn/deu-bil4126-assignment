@@ -138,22 +138,21 @@ func Order(w http.ResponseWriter, r *http.Request) {
 		log.Println("Order not acceptable.")
 		return
 	}
+	// returned Response
+	var Response OrderResponse = OrderResponse{
+		0,
+		0,
+		o.GivenAmount, // inorder_item_amount
+	}
 	// create but don't write newOrder
-	var Response OrderResponse // returned
-	Response.InorderGivenItemAmount = o.GivenAmount
 	newOrder := db.NewOrder(user.Email, user.Key,
 		o.GivenInventory, givenItem.Name, o.GivenAmount,
 		o.WantedInventory, wantedItem.Name, o.WantedAmount)
 	// match order
 	orders := db.FindOrders(o.GivenInventory, givenItem.Name,
 		o.WantedInventory, wantedItem.Name)
-	if orders == nil { // counter offer doesn't exist
-		if !newOrder.Create() {
-			w.WriteHeader(http.StatusInternalServerError)
-			log.Println("Can't create order.")
-			return
-		}
-	} else { // match orders
+	if orders != nil {
+		// match orders
 		for _, offer := range orders {
 			interval_g1, interval_g2 := givenItem.PriceMin*float64(newOrder.GivenAmount), givenItem.PriceMax*float64(newOrder.GivenAmount)
 			interval_w1, interval_w2 := wantedItem.PriceMin*float64(offer.GivenAmount), wantedItem.PriceMax*float64(offer.GivenAmount)
@@ -171,28 +170,29 @@ func Order(w http.ResponseWriter, r *http.Request) {
 					log.Println("Can't find user of the order.")
 					return
 				}
-				var n notify.Notification = notify.Notification{
-					user,
-					u2,
-					newOrder.WantedInventory,
-					newOrder.WantedItem,
-					offer.GivenAmount,
-					newOrder.GivenInventory,
-					newOrder.GivenItem,
-					newOrder.GivenAmount - Response.SurplusGivenItemAmount}
+				var n = notify.Notification{
+					U1:            user,
+					U2:            u2,
+					GotInventory:  newOrder.WantedInventory,
+					GotItem:       newOrder.WantedItem,
+					GotAmount:     offer.GivenAmount,
+					GaveInventory: newOrder.GivenInventory,
+					GaveItem:      newOrder.GivenItem,
+					GaveAmount:    newOrder.GivenAmount - Response.SurplusGivenItemAmount,
+				}
+				// notify and del record at the background
 				go notify.Notify(n)
-				// offer closed
 				go offer.PermDel()
 				break
 			}
 		}
-		if Response.AcquiredWantedItemAmount == 0 {
-			// barter didn't happen
-			if !newOrder.Create() {
-				w.WriteHeader(http.StatusInternalServerError)
-				log.Println("Can't create order.")
-				return
-			}
+	}
+	if Response.AcquiredWantedItemAmount == 0 {
+		// barter didn't happen
+		if !newOrder.Create() {
+			w.WriteHeader(http.StatusInternalServerError)
+			log.Println("Can't create order.")
+			return
 		}
 	}
 	// return OrderResponse
